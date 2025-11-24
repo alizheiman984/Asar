@@ -67,6 +67,7 @@ return new class extends Migration
             $table->date('birth_date')->nullable();
             $table->string('image')->nullable();
             $table->integer('total_points')->default(0);
+            $table->string('qr_code')->nullable();
             $table->foreignId('specialization_id')->nullable()->constrained('specializations')->onDelete('cascade');
             $table->rememberToken();
             $table->timestamps();

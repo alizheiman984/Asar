@@ -49,7 +49,16 @@ class AttendanceController extends Controller
             'is_attendance' => 'required|boolean',
             'reason_of_change' => 'required|in:عذر,حضور,عدم حضور',
             'image' => 'nullable|image',
+            'scanned' => 'required|boolean',
         ]);
+        
+        if ($request->scanned == true) {
+            $isAttendance = 1;
+            $reason = "حضور";
+        } else {
+            $isAttendance = 0;
+            $reason = $request->reason_of_change;
+        }
 
         $existingAttendance = Attendance::where('volunteer_id', $request->volunteer_id)
             ->where('campaign_id', $request->campaign_id)
@@ -92,7 +101,7 @@ class AttendanceController extends Controller
             'volunteer_id' => $request->volunteer_id,
             'campaign_id' => $request->campaign_id,
             'employee_id' => auth()->user()->id,
-            'is_attendance' => $request->is_attendance,
+            'is_attendance' => $isAttendance,
             'points_earned' => $request->is_attendance ? $campaign->points : 0,
             'image' => $imagePath,
         ]);
@@ -104,19 +113,19 @@ class AttendanceController extends Controller
 
         $certificatePath = 'certificates/volunteer_' . $request->volunteer_id . '.pdf';
 
-        if (!$existingCertificate) {
-          Certificate::create([
-                'volunteer_id' => $request->volunteer_id,
-                'level' => 'متطوع نشط',
-                'points_threshold' => 100,
-                'certificate_type' => 'تشجيعية', 
-                'issued_at' => now(),
-                'certificate_path' => $certificatePath,
-                'certificate_issued' => true,
-            ]);
+            if (!$existingCertificate) {
+            Certificate::create([
+                    'volunteer_id' => $request->volunteer_id,
+                    'level' => 'متطوع نشط',
+                    'points_threshold' => 100,
+                    'certificate_type' => 'تشجيعية', 
+                    'issued_at' => now(),
+                    'certificate_path' => $certificatePath,
+                    'certificate_issued' => true,
+                ]);
 
+            }
         }
-    }
         if ($magnitudeChange !== '0' && $magnitudeChange !== 'none') {
             Point::create([
                 'volunteer_id' => $request->volunteer_id,
@@ -154,7 +163,7 @@ class AttendanceController extends Controller
             'is_attendance' => 'required|boolean',
             'reason_of_change' => 'required|in:عذر,حضور,عدم حضور',
             'image' => 'nullable|image',
-
+            'scanned' => 'required|boolean',
         ]);
 
 
@@ -162,6 +171,14 @@ class AttendanceController extends Controller
         $attendance = Attendance::findOrFail($id);
         $volunteer = Volunteer::findOrFail($attendance->volunteer_id);
         $campaign = Campaign::findOrFail($attendance->campaign_id);
+
+         if ($request->scanned == true) {
+            $isAttendance = 1;
+            $reason = "حضور";
+        } else {
+            $isAttendance = 0;
+            $reason = $request->reason_of_change;
+        }
 
         $oldPoints = $attendance->points_earned;
 
@@ -202,7 +219,7 @@ class AttendanceController extends Controller
 
         $attendance->update([
 
-            'is_attendance' => $request->is_attendance,
+            'is_attendance' => $isAttendance,
             'points_earned' => $request->is_attendance ? $campaign->points : 0,
             'image' => $imagePath,
             

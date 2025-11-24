@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\VolunteerTeam;
 use App\Models\BusinessInformation;
 
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -24,11 +25,9 @@ class AuthController extends Controller
         try {
             $request->validate([
                 'full_name' => 'required|string|max:255',
-              
                 'email' => 'required|string|email|max:255|unique:volunteers',
                 'password' => 'required|string|min:8',
                 'specialization_id' => 'required|exists:specializations,id',
-              
             ]);
 
             $volunteer = Volunteer::create([
@@ -44,6 +43,17 @@ class AuthController extends Controller
                 'total_points' => 0,
             ]);
 
+            $qrText = 'volunteer-'.$volunteer->id;
+           $qrImage = \QrCode::size(300)
+            ->format('svg')  
+            ->generate($qrText);
+
+        $filePath = 'qr_codes/'.$volunteer->id.'.svg';
+        Storage::disk('public')->put($filePath, $qrImage);
+
+            
+            $volunteer->qr_code = $filePath;
+            $volunteer->save();
             $token = $volunteer->createToken('auth_token')->plainTextToken;
 
             return response()->json([
