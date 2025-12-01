@@ -5,12 +5,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\OTPController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\PointController;
+use App\Http\Controllers\Api\SupplyController;
 use App\Http\Controllers\Api\RequestController;
 use App\Http\Controllers\Api\CampaignController;
 use App\Http\Controllers\Api\ContractController;
 use App\Http\Controllers\Api\EmployeeController;
 use App\Http\Controllers\Api\FinancialController;
+use App\Http\Controllers\Api\InventoryController;
 use App\Http\Controllers\Api\VolunteerController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\BenefactorController;
@@ -97,6 +100,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // Donor Payments routes
     Route::apiResource('donor-payments', DonorPaymentController::class);
 
+  
+
+
+    Route::post('stripe/webhook', [DonorPaymentController::class, 'handleWebhook']);
+
+
+
     // Financials routes
     Route::apiResource('financials', FinancialController::class);
 
@@ -115,7 +125,29 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('my-chat-rooms', [ChatController::class,'myChatRooms']);
 
 
-     
+    // inventory
+    Route::get('/inventory', [InventoryController::class, 'index']);
+
+    // items
+    
+    Route::get('/items', [ItemController::class, 'index']);
+    Route::post('/items', [ItemController::class, 'store']);
+    Route::get('/items/{id}', [ItemController::class, 'show']);
+    Route::put('/items/{id}', [ItemController::class, 'update']);
+    Route::delete('/items/{id}', [ItemController::class, 'destroy']);
+
+
+    // Supplies
+    Route::post('/supplies/add', [SupplyController::class, 'addSupply']);
+    Route::post('/supplies/consume', [SupplyController::class, 'consume']);
+
+    Route::get('/team/supplies', [SupplyController::class, 'teamSupplies']);
+
+
+
+
+
+
     // Contracts routes
     Route::apiResource('contracts', ContractController::class);
 

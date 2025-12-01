@@ -38,6 +38,10 @@ class Employee extends Authenticatable
     {
         return $this->belongsTo(VolunteerTeam::class,'team_id');
     }
+       public function supplies()
+    {
+        return $this->hasMany(Supplie::class);
+    }
 
     public function specialization(): BelongsTo
     {

@@ -20,6 +20,8 @@ return new class extends Migration
             $table->dateTime('from');
             $table->dateTime('to');
             $table->integer('points');
+            $table->string('long')->nullable();
+            $table->string('lat')->nullable();
             $table->enum('status', ['pending', 'done', 'rejected'])->default('pending');
             $table->foreignId('specialization_id')->nullable()->constrained('specializations')->onDelete('cascade');
             $table->foreignId('campaign_type_id')->constrained('campaign_types')->onDelete('cascade');
@@ -81,9 +83,12 @@ return new class extends Migration
             $table->foreignId('team_id')->constrained('volunteer_teams')->onDelete('cascade');
             $table->decimal('amount', 10, 2);
             $table->string('transfer_number')->nullable();
-            $table->enum('type', ['حوالة', 'كاش']);
+            $table->enum('type', ['حوالة', 'كاش','الكتروني']);
+            $table->string('stripe_session_id')->nullable(); 
+            $table->string('stripe_payment_intent')->nullable(); 
+
             $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
-            $table->date('payment_date');
+            $table->date('payment_date')->nullable();
             $table->string('image')->nullable();
             $table->timestamps();
         });

@@ -48,6 +48,8 @@ class CampaignController extends Controller
             'from' => 'required|date_format:Y-m-d H:i:s',
             'to' => 'required|date_format:Y-m-d H:i:s',
             'points' => 'required|integer',
+            'long'=>'required',
+            'lat'=>'required',
             'specialization_id' => 'nullable|exists:specializations,id',
             'campaign_type_id' => 'required|exists:campaign_types,id',
         ]);
@@ -80,6 +82,8 @@ class CampaignController extends Controller
                 'campaign_type_id' => $request->campaign_type_id,
                 'team_id' => $team_id,
                 'employee_id' => $employee->id,
+                'long'=> $request->long,
+                'lat'=> $request->lat,
             ]);
 
             $financial = Financial::where('team_id', $team_id)->first();
@@ -129,6 +133,8 @@ class CampaignController extends Controller
             'from' => 'nullable|date_format:Y-m-d H:i:s',
             'to' => 'nullable|date_format:Y-m-d H:i:s',
             'points' => 'nullable|integer',
+            'long'=>'required',
+            'lat'=>'required',
             'specialization_id' => 'nullable|exists:specializations,id',
             'campaign_type_id' => 'nullable|exists:campaign_types,id',
         ]);
@@ -184,6 +190,8 @@ class CampaignController extends Controller
                 'address' => $request->address,
                 'from' => $request->from,
                 'to' => $request->to,
+                'long'=>$request->required,
+                'lat'=>$request->required,
                 'points' => $request->points,
                 'specialization_id' => $request->specialization_id,
                 'campaign_type_id' => $request->campaign_type_id,

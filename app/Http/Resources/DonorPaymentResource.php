@@ -20,6 +20,7 @@ class DonorPaymentResource extends JsonResource
             'transfer_number' => $this->transfer_number,
             'status' => $this->status,
             'image' => $this->image,
+            'stripe_payment_intent' => $this->stripe_payment_intent,
             'benefactor' => new BenefactorResource($this->whenLoaded('benefactor')),
             'team' => new TeamResource($this->whenLoaded('team')),
             'employee' => new EmployeeResource($this->whenLoaded('employee')),

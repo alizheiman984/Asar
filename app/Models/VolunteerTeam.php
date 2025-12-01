@@ -32,6 +32,11 @@ class VolunteerTeam extends Authenticatable
         'remember_token',
     ];
 
+        public function supplies()
+    {
+        return $this->hasManyThrough(Supplie::class, Employee::class);
+    }
+
     public function businessInformation(): HasOne
     {
         return $this->hasOne(BusinessInformation::class,'team_id');

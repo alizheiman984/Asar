@@ -13,6 +13,8 @@ use App\Http\Resources\TeamResource;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\VolunteerResource;
 use App\Http\Resources\DonorPaymentResource;
+use Stripe\Stripe;
+use Stripe\Checkout\Session;
 
 class DonorPaymentController extends Controller
 {
@@ -43,47 +45,85 @@ class DonorPaymentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'employee_id' => 'nullable|exists:employees,id',
             'team_id' => 'required|exists:volunteer_teams,id',
             'amount' => 'required|numeric',
-            'transfer_number' => 'required|string',
-            'type' => '|in:حوالة,كاش',
-            'status' => 'in:pending,accepted,rejected',
-            'payment_date' => 'nullable|date',
-            'image' => 'nullable',
+
+            'type' => 'required|in:حوالة,الكتروني', 
+
+            'transfer_number' => 'required_if:type,حوالة|string|nullable',
+            'image' => 'required_if:type,حوالة|nullable|image',
         ]);
 
-        $benefactor = auth()->user();
+        $volunteerId = auth()->user()->id;
 
-        if ($request->hasFile('image')) {
+     
+        if ($request->type === 'حوالة') {
+
+           
             $image = $request->file('image');
             $imageName = uniqid() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('uploads/DonorPayment'), $imageName);
-            $imageRelativePath = 'uploads/DonorPayment/' . $imageName;
-        } else {
-            return response()->json(['message' => 'No image uploaded'], 400);
-        }
-        
-        // return $request->all();
-        $payment = DonorPayment::create([
-            'team_id' => $request->team_id,
-            // 'benefactor_id' => $benefactor->id,
-            'volunteer_id' =>auth()->user()->id,
-            // 'employee_id' => $request->employee_id,
-        
-            'amount' => $request->amount,
-            'transfer_number' => $request->transfer_number,
-            'type' => 'حوالة',
-            'status' => 'pending',
-            'payment_date' => Carbon::now(),
-            'image' => $imageRelativePath,
-        ]);
+            $imagePath = 'uploads/DonorPayment/' . $imageName;
 
-        return response()->json([
-            'message' => 'Payment created successfully',
-            'payment' => $payment,
-        ]);
+            $payment = DonorPayment::create([
+                'team_id' => $request->team_id,
+                'volunteer_id' => $volunteerId,
+                'amount' => $request->amount,
+                'transfer_number' => $request->transfer_number,
+                'type' => 'حوالة',
+                'status' => 'pending',
+                'payment_date' => now(),
+                'image' => $imagePath,
+            ]);
+
+            return response()->json([
+                'message' => 'تم تسجيل حوالة المتبرع بنجاح',
+                'payment' => $payment
+            ]);
+        }
+
+      
+        if ($request->type === 'الكتروني') {
+
+            Stripe::setApiKey(env('STRIPE_SECRET'));
+
+            $session = Session::create([
+                'payment_method_types' => ['card'],
+                'line_items' => [[
+                    'price_data' => [
+                        'currency' => 'usd',
+                        'product_data' => [
+                            'name' => 'Donation Payment',
+                        ],
+                        'unit_amount' => $request->amount * 100,
+                    ],
+                    'quantity' => 1,
+                ]],
+                'mode' => 'payment',
+                'success_url' => 'http://127.0.0.1:8000/stripe/success?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => 'http://127.0.0.1:8000/stripe/cancel',
+            ]);
+
+            $payment = DonorPayment::create([
+                'team_id' => $request->team_id,
+                'volunteer_id' => $volunteerId,
+                'amount' => $request->amount,
+                'type' => 'الكتروني',
+                'status' => 'pending',
+                'stripe_session_id' => $session->id,
+            ]);
+
+            return response()->json([
+                'message' => 'تم إنشاء جلسة الدفع الإلكتروني',
+                'checkout_url' => $session->url,
+                'payment' => $payment,
+            ]);
+        }
     }
+
+
+ 
+ 
 
    
     /**

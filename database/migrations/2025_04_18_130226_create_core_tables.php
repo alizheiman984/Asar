@@ -79,7 +79,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('national_number')->unique()->nullable();
-            $table->enum('position',['مشرف','موظف مالي']);
+            $table->enum('position',['مدير مستودع','مشرف','موظف مالي']);
             $table->string('phone');
             $table->string('address')->nullable();
             $table->date('date_accession');
