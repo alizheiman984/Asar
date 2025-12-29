@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\VolunteerController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\BenefactorController;
 use App\Http\Controllers\Api\GovernmentController;
+use App\Http\Controllers\BenefitRequestController;
 use App\Http\Controllers\Api\CertificateController;
 use App\Http\Controllers\Api\CampaignTypeController;
 use App\Http\Controllers\Api\DonorPaymentController;
@@ -47,6 +48,28 @@ Route::post('employee/login', [VolunteerTeamController::class, 'LoginEmployee'])
  
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
+
+
+
+
+    // Volunteer Field Supervisor
+    Route::post('/benefit-requests', [BenefitRequestController::class, 'store']);
+    Route::get('/my-benefit-requests', [BenefitRequestController::class, 'myRequests']);
+    Route::post('/benefit-requests/destroy/{id}', [BenefitRequestController::class, 'destroy']);
+
+    // Field Supervisor
+    Route::get('/field/benefit-requests/pending', [BenefitRequestController::class, 'fieldRequests']);
+    Route::get('/field/benefit-requests/All', [BenefitRequestController::class, 'fieldRequestsAll']);
+    Route::get('/field/benefit-requests/Completed', [BenefitRequestController::class, 'fieldRequestsCompleted']);
+    Route::get('/field/benefit-requests/Rejected', [BenefitRequestController::class, 'fieldRequestsRejected']);
+    Route::get('/field/benefit-requests/Accepted', [BenefitRequestController::class, 'fieldRequestsAccepted']);
+
+    
+    
+    Route::put('/benefit-requests/{id}/status', [BenefitRequestController::class, 'updateStatus']);
+
+
+
     //volunteer
     Route::get('/volunteer/profile', [AuthController::class, 'profileVolunteer']);
     Route::post('/volunteer/profile/update', [AuthController::class, 'updateProfilevolunteer']);
@@ -69,6 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Campaigns routes
     Route::apiResource('campaigns', CampaignController::class);
+    Route::get('campaigns/update/StatusDone/{id}', [CampaignController::class,'updatestatus']);
     Route::get('get/campaigns/By/Specialty', [CampaignController::class,'getcampaignsBySpecialty']);
     Route::post('campaigns/{campaign}/volunteers', [CampaignController::class, 'addVolunteer']);
     Route::delete('campaigns/{id}/volunteers', [CampaignController::class, 'removeVolunteer']);

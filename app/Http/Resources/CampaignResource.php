@@ -24,6 +24,8 @@ class CampaignResource extends JsonResource
             'to' => $this->to,
             'points' => $this->points,
             'status' => $this->status,
+            'long'=>$this->long,
+            'lat'=>$this->lat,
             'specialization' => new SpecializationResource($this->whenLoaded('specialization')),
             'campaign_type' => new CampaignTypeResource($this->whenLoaded('campaignType')),
             'team' => new TeamResource($this->whenLoaded('team')),

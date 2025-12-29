@@ -429,7 +429,8 @@ class VolunteerTeamController extends Controller
             'email' => 'required|email|unique:employees',
             'password' => 'required|min:6',
             'national_number' => 'nullable|unique:employees',
-            'position' => 'required|in:مشرف,موظف مالي',
+           'position' => 'required|in:مشرف ميداني,مدير مستودع,مشرف,موظف مالي',
+
             'phone' => 'required|string',
             'address' => 'nullable|string',
             'date_accession' => 'required|date_format:Y-m-d',

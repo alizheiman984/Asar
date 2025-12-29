@@ -228,6 +228,24 @@ class CampaignController extends Controller
     }
     
     
+    public function updatestatus($id)
+    {
+        try {
+            $campaign = Campaign::find($id);
+    
+            if (!$campaign) {
+                return response()->json(['message' => 'Campaign not found'], 404);
+            }
+    
+            $campaign->status = 'done';
+            $campaign->save();
+            return response()->json(['message' => 'Campaign updated successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'An error occurred while deleting the campaign', 'error' => $e->getMessage()], 500);
+        }
+    }
+    
+
 
     public function volunteers(Campaign $campaign)
     {
