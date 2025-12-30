@@ -188,7 +188,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // Government Routes
-Route::middleware(['auth:sanctum', 'government.only'])->group(function () {
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/government/teams', [GovernmentController::class, 'getTeams']);
     Route::get('/government/charities', [GovernmentController::class, 'getCharities']);
     Route::get('/government/teams/pending', [GovernmentController::class, 'getPendingTeams']);

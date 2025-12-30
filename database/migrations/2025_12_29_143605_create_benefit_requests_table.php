@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('benefit_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('volunteer_id')->constrained('volunteers')->onDelete('cascade');
-            $table->foreignId('employee_id')->constrained('employees')->onDelete('cascade')->nullable();
+            $table->foreignId('employee_id')->nullable()->constrained('employees')->onDelete('cascade');
             $table->text('description');
             $table->enum('status', ['pending', 'accepted', 'rejected', 'completed'])->default('pending');
             $table->text('supervisor_note')->nullable();

@@ -24,7 +24,6 @@ class GovernmentController extends Controller
     public function __construct()
     {
         $this->middleware('auth:sanctum');
-        $this->middleware('government.only');
     }
 
     // Teams Tab
