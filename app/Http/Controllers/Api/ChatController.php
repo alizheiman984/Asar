@@ -71,27 +71,45 @@ class ChatController extends Controller
     }
 
 
-    public function myChatRooms()
+  public function myChatRooms()
     {
         $user = auth()->user();
         $userType = get_class($user);
 
-        $chatRooms = ChatRoom::whereHas('messages', function ($query) use ($user, $userType) {
-            $query->where('sender_id', $user->id)
-                ->where('sender_type', $userType);
-        })
-        ->orWhereHas('volunteers', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })
-        ->orWhereHas('employees', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })
-        ->with(['campaign','messages.sender'])
-        ->latest()
-        ->get();
+        $chatRooms = ChatRoom::where(function ($q) use ($user, $userType) {
 
-        return response()->json($chatRooms);
+                $q->whereHas('messages', function ($query) use ($user, $userType) {
+                    $query->where('sender_id', $user->id)
+                        ->where('sender_type', $userType);
+                });
+
+                if ($user instanceof \App\Models\Volunteer) {
+                    $q->orWhereHas('volunteers', function ($query) use ($user) {
+                        $query->where('volunteers.id', $user->id);
+                    });
+                }
+
+                if ($user instanceof \App\Models\Employee) {
+                    $q->orWhere('employee_id', $user->id);
+                }
+            })
+            ->with(['campaign', 'messages.sender'])
+            ->latest()
+            ->get();
+
+        if ($chatRooms->isEmpty()) {
+            return response()->json([
+                'message' => 'لا يوجد محادثات',
+                'data' => []
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'تم جلب المحادثات',
+            'data' => $chatRooms
+        ]);
     }
+
 
 
     public function sendMessage(Request $request, $chatRoomId)
@@ -100,8 +118,11 @@ class ChatController extends Controller
             'message' => 'required|string',
         ]);
 
-        $chatRoom = ChatRoom::findOrFail($chatRoomId);
+        $chatRoom = ChatRoom::find($chatRoomId);
 
+        if(!$chatRoom){
+            return response()->json(['message' => 'ChatRoom not found'], 404);
+        }
         $message = $chatRoom->messages()->create([
             'sender_id' => auth()->id(),
             'sender_type' => get_class(auth()->user()),
@@ -117,7 +138,14 @@ class ChatController extends Controller
 
     public function getMessages($chatRoomId)
     {
-        $chatRoom = ChatRoom::findOrFail($chatRoomId);
+        $chatRoom = ChatRoom::find($chatRoomId);
+
+        if(!$chatRoom){
+            return response()->json([
+                'message' => 'ChatRoom not found',
+                'data' => []
+            ]);
+        }
 
         $messages = $chatRoom->messages()->with('sender')->latest()->get();
 

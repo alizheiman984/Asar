@@ -24,7 +24,9 @@ class Campaign extends Model
         'specialization_id',
         'campaign_type_id',
         'team_id',
-        'employee_id'
+        'employee_id',
+        'long',
+        'lat',
     ];
 
     protected $casts = [

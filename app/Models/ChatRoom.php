@@ -23,10 +23,12 @@ protected $guarded = [];
     }
 
 
+
+
     public function volunteers()
     {
-        return $this->belongsToMany(Volunteer::class, 'chat_room_users', 'chat_room_id', 'user_id')
-                    ->wherePivot('user_type', 'App\\Models\\Volunteer')
+        return $this->belongsToMany(Volunteer::class, 'chat_room_users', 'chat_room_id', 'volunteer_id')
+                    ->wherePivot('user_type', Volunteer::class)
                     ->withTimestamps();
     }
 
