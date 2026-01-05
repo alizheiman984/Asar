@@ -18,6 +18,7 @@ class VolunteerResource extends JsonResource
             'email' => $this->email,
             'image' => $this->image,
             'birth_date' => $this->birth_date,
+            'qr_code'=>$this->qr_code,
             'specialization' => new SpecializationResource($this->whenLoaded('specialization')),
             'campaigns' => CampaignResource::collection($this->whenLoaded('campaigns')),
             'points' => PointResource::collection($this->whenLoaded('points')),
